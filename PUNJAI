@@ -1,0 +1,408 @@
+var CHANNEL_ACCESS_TOKEN = 'CZQ1nUf9Jw33oQtOxXe9DvoaFg8KvLfLCo/sqVBTwvZI2xmtzg0HJlRIJrK4rLlkyya1AWv6xlQ0HGA0agseJqgTWUZ9ZjRLTRdDWweGH9JJT96SEWM61T+CfHMi/BdxwvC4eryK/5FzQZEGvEfavgdB04t89/1O/w1cDnyilFU='; 
+var line_endpoint = 'https://api.line.me/v2/bot/message/reply';
+
+function doGet (request) {
+  return ContentService.createTextOutput(JSON.stringify({
+    post: "ok"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+var sheet1 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Form Responses 1");
+var data = sheet1.getRange(2, 1, sheet1.getLastRow(),sheet1.getLastColumn()).getValues();
+var result = 'ไม่มีเลขที่การจอง';
+
+function doPost(e) {
+
+  var json = JSON.parse(e.postData.contents);
+
+  var reply_token= json.events[0].replyToken;
+
+  var message = json.events[0].message.text;  
+
+   for (var i = 0; i < data.length; i++) 
+  { // avoid duplicate row
+    if(data[i][0] == message ){
+    
+      i=i+2;// Loop แถวที่2
+      var bookingT = sheet1.getRange(i,1).getDisplayValue(); //วันเวลาจอง
+      var Name = sheet1.getRange(i,2).getValue(); //ชื่อ - นามสกุล
+      var tel = sheet1.getRange(i,3).getValue(); //เบอร์โทร
+      var date = sheet1.getRange(i,4).getValue(); //วันที่ต้องการ
+      var out = sheet1.getRange(i,5).getValue(); //วันที่ออก
+      var note =  sheet1.getRange(i,6).getValue(); //บันทึก
+      var triple =  sheet1.getRange(i,7).getValue();//ห้องสามเตียง
+      var twin =  sheet1.getRange(i,8).getValue();//ห้องสองเตียง
+      var double2 =  sheet1.getRange(i,9).getValue(); //ห้องเตียงเดี่ยว2
+      var double3 =  sheet1.getRange(i,10).getValue(); //ห้องเตียงเดี่ยว3
+      var bank =  sheet1.getRange(i,11).getValue();//ธนาคาร
+      var amount =  sheet1.getRange(i,12).getDisplayValue();//ยอดเงินโอน
+      var qrcode1 =  sheet1.getRange(i,13).getValue();//Qr code
+      var bookingID =  sheet1.getRange(i,14).getDisplayValue();//ID
+      var editF =  sheet1.getRange(i,15).getValue();//edit form
+      var Tamount = sheet1.getRange(i,16).getValue();//ยอดทั้งหมด
+      var rest = sheet1.getRange(i,17).getValue();//ส่วนที่เหลือ
+      var Troom = sheet1.getRange(i,18).getValue();//ห้องรวม
+     
+      result =  {
+    "type": "bubble",
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "รายละเอียดการจองห้องพัก",
+          "weight": "bold",
+          "color": "#1DB446",
+          "size": "xl",
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "text": "Tl",
+          "weight": "bold",
+          "size": "xxl",
+          "margin": "md",
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "text": "12",
+          "size": "xs",
+          "color": "#aaaaaa",
+          "wrap": true,
+          "align": "center"
+        },
+        {
+          "type": "separator",
+          "margin": "xxl"
+        },
+        {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "ผู้จองห้องพัก",
+                  "margin": "none"
+                },
+                {
+                  "type": "text",
+                  "text": ""+Name,
+                  "align": "end"
+                }
+              ],
+              "margin": "xxl"
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "เบอร์ติดต่อ"
+                },
+                {
+                  "type": "text",
+                  "text": ""+tel,
+                  "align": "end"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "xxl"
+        },
+        {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "วันที่เข้าพัก"
+                },
+                {
+                  "type": "text",
+                  "text": ""+date,
+                  "align": "end",
+                  "color": "#FF0000"
+                }
+              ],
+              "margin": "xxl"
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "วันที่เช็คเอ้าท์"
+                },
+                {
+                  "type": "text",
+                  "text": ""+out,
+                  "align": "end",
+                  "color": "#FF0000"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "xxl"
+        },
+        {
+          "type": "box",
+          "layout": "vertical",
+          "margin": "xxl",
+          "spacing": "sm",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "ห้องสามเตียง ชั้น 1"
+                },
+                {
+                  "type": "text",
+                  "text": ""+triple,
+                  "align": "end"
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "ห้องเตียงคู่ ชั้น 1",
+                  "size": "md",
+                  "color": "#555555"
+                },
+                {
+                  "type": "text",
+                  "text": ""+twin,
+                  "size": "md",
+                  "color": "#111111",
+                  "align": "end"
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "ห้องเตียงเดี่ยว ชั้น 2",
+                  "size": "md",
+                  "color": "#555555"
+                },
+                {
+                  "type": "text",
+                  "text": ""+double2,
+                  "size": "md",
+                  "color": "#111111",
+                  "align": "end"
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "ห้องเตียงเดี่ยว ชั้น 3",
+                  "size": "md",
+                  "color": "#555555"
+                },
+                {
+                  "type": "text",
+                  "text": ""+double3,
+                  "size": "md",
+                  "color": "#111111",
+                  "align": "end"
+                }
+              ]
+            },
+            {
+              "type": "separator",
+              "margin": "xxl"
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "margin": "xxl",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "จำนวนห้อง",
+                  "size": "md",
+                  "color": "#555555"
+                },
+                {
+                  "type": "text",
+                  "text": ""+Troom,
+                  "size": "md",
+                  "color": "#111111",
+                  "align": "end"
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "ราคารวม",
+                  "size": "md",
+                  "color": "#555555"
+                },
+                {
+                  "type": "text",
+                  "text": ""+Tamount,
+                  "size": "md",
+                  "color": "#111111",
+                  "align": "end"
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "โอนมัดจำ 50%",
+                  "size": "md",
+                  "color": "#0000FF",
+                  "weight": "bold"
+                },
+                {
+                  "type": "text",
+                  "text": ""+amount,
+                  "size": "md",
+                  "color": "#0000FF",
+                  "align": "end",
+                  "weight": "bold"
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "คงเหลือ",
+                  "size": "md",
+                  "color": "#FF0000",
+                  "weight": "bold"
+                },
+                {
+                  "type": "text",
+                  "text": ""+rest,
+                  "size": "md",
+                  "color": "#FF0000",
+                  "align": "end",
+                  "weight": "bold"
+                }
+              ]
+            },
+            {
+              "type": "separator",
+              "margin": "xxl"
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "หมายเหตุ"
+                },
+                {
+                  "type": "text",
+                  "text": ""+note,
+                  "align": "end",
+                  "color": "#0000FF"
+                }
+              ],
+              "margin": "xxl"
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "xxl"
+        },
+        {
+          "type": "text",
+          "text": "QR Code Payment",
+          "margin": "xxl",
+          "align": "center",
+          "weight": "bold",
+          "color": "#aaaaaa",
+          "size": "xxl"
+        },
+        {
+          "type": "image",
+          "url": ""+qrcode1,
+          "size": "full"
+        },
+        {
+          "type": "text",
+          "text": "กรุณาแสกน QR Code เพื่อมัดจำห้องพัก",
+          "color": "#aaaaaa"
+        }
+      ]
+    },
+    "styles": {
+      "footer": {
+        "separator": true
+      }
+    }
+  }
+
+                
+    
+    };//End if   
+   };//End for
+  
+  
+    
+ UrlFetchApp.fetch(line_endpoint, {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN,
+    },
+    'method': 'post',
+    'payload': JSON.stringify({
+      'replyToken': reply_token,
+      'messages': [{
+          'type': 'flex',
+          'altText': 'This is Flex Message',
+          'contents': result        
+        }],
+    }),
+  });
+  
+  
+  return ContentService.createTextOutput(JSON.stringify({'content': 'post ok'})).setMimeType(ContentService.MimeType.JSON);
+}
